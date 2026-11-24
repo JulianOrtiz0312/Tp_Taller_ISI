@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<h1>Usuarios Registrados</h1>
+<ul>
+  {% for user in users %}
+    <li>{{ user.name }} ({{ user.email }}) — Rol: {{ user.role.value }}</li>
+  {% else %}
+    <li>No hay usuarios registrados.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

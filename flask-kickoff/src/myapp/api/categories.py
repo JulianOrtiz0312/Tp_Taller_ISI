@@ -1,25 +1,37 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from myapp.extensions import db
-from myapp.models import Category
+from myapp.models import Category, User, UserRole
 
 categories_bp = Blueprint("categories", __name__, url_prefix="/categories")
 
-def _is_admin(payload: dict) -> bool:
-    header_admin = request.headers.get("X-Admin", "").strip().lower() in {"1", "true", "yes"}
-    body_admin = bool(payload.get("is_admin")) or (isinstance(payload.get("role"), str) and payload.get("role").strip().lower() == "admin")
-    return header_admin or body_admin
+def _get_current_admin() -> tuple[User | None, int | None]:
+    user_id = session.get("user_id")
+    if not user_id:
+        return None, 401
+
+    user = db.session.get(User, user_id)
+    if user is None:
+        return None, 401
+
+    if user.role != UserRole.ADMIN:
+        return None, 403
+
+    return user, None
 
 @categories_bp.post("")
 def create_category():
+    _, auth_error = _get_current_admin()
+    if auth_error == 401:
+        return jsonify({"error": "Debes iniciar sesion para crear categorias."}), 401
+    if auth_error == 403:
+        return jsonify({"error": "Solo un administrador puede crear categorias."}), 403
+
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
         return jsonify({"error": "El cuerpo de la solicitud debe ser un JSON valido."}), 400
-
-    if not _is_admin(payload):
-        return jsonify({"error": "Solo un administrador puede crear categorias."}), 403
 
     raw_name = payload.get("name")
     if not isinstance(raw_name, str) or not raw_name.strip():
@@ -28,10 +40,9 @@ def create_category():
     name = raw_name.strip()
 
     existing = Category.query.filter(func.lower(Category.name) == name.lower()).first()
-
     if existing:
         return jsonify({"error": "Ya existe una categoria con ese nombre."}), 409
-
+    
     category = Category(name=name)
     db.session.add(category)
 

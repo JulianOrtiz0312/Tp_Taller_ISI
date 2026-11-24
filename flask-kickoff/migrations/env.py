@@ -1,9 +1,7 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -23,9 +21,9 @@ from pathlib import Path as _Path
 
 sys.path.insert(0, str(_Path(__file__).resolve().parents[1] / "src"))
 
-from myapp.config import Config  # noqa: E402
-from myapp.extensions import db  # noqa: E402
-import myapp.models  # noqa: E402, F401
+import myapp.models  # noqa: F401
+from myapp.config import Config
+from myapp.extensions import db
 
 config.set_main_option("sqlalchemy.url", Config.SQLALCHEMY_DATABASE_URI)
 target_metadata = db.metadata
@@ -74,9 +72,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

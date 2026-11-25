@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Responder Pregunta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Responder pregunta</h1>
+
+    <div class="question-summary">
+        <h2>{{ question.titulo }}</h2>
+        <p>{{ question.cuerpo }}</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('answers.create', question_id=question.id) }}">
+        <div>
+            <label for="cuerpo">Tu respuesta:</label><br>
+            <textarea
+                id="cuerpo"
+                name="cuerpo"
+                rows="6"
+                cols="60"
+                required
+                placeholder="Escribí tu respuesta acá..."
+            >{{ cuerpo }}</textarea>
+        </div>
+
+        <div style="margin-top: 1rem;">
+            <button type="submit">Publicar respuesta</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -20,4 +20,8 @@ def create_app(config_class=Config):
     app.register_blueprint(users_bp)
     app.register_blueprint(api_users_bp)
 
+    from myapp.api.auth import auth_bp
+
+    app.register_blueprint(auth_bp)
+
     return app

@@ -125,3 +125,16 @@ def assign_user_role(target_user_id: int, new_role: str | UserRole) -> User:
     db.session.refresh(user)
     logger.info("Rol actualizado a '%s' para user_id=%s", parsed_role.value, user.id)
     return user
+
+
+def delete_user(acting_user_id: int, target_user_id: int) -> None:
+    user = db.session.get(User, target_user_id)
+    if user is None:
+        raise LookupError("La cuenta de usuario no existe.")
+
+    if acting_user_id != target_user_id:
+        raise PermissionError("No tienes permiso para eliminar otra cuenta.")
+
+    db.session.delete(user)
+    db.session.commit()
+    logger.info("Cuenta eliminada completamente para user_id=%s", target_user_id)

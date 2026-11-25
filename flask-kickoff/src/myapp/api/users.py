@@ -5,6 +5,7 @@ from myapp.services.user_service import (
     DuplicateEmailError,
     UserServiceError,
     assign_user_role,
+    delete_user,
     list_users,
     register_user,
     update_user_data,
@@ -114,3 +115,19 @@ def admin_maintenance():
         ),
         200,
     )
+
+
+@api_users_bp.delete("/<int:user_id>")
+def remove_user(user_id: int):
+    acting_user_id = session.get("user_id")
+    if acting_user_id is None:
+        return jsonify({"error": "Usuario no autenticado."}), 401
+
+    try:
+        delete_user(acting_user_id=acting_user_id, target_user_id=user_id)
+        session.clear()
+        return jsonify({"message": "Cuenta eliminada correctamente."}), 200
+    except LookupError as exc:
+        return jsonify({"error": str(exc)}), 404
+    except PermissionError as exc:
+        return jsonify({"error": str(exc)}), 403

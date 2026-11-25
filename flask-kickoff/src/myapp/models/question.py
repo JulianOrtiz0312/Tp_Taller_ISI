@@ -11,7 +11,9 @@ class Question(db.Model):
     cuerpo = db.Column(db.Text, nullable=False)
     fecha = db.Column(db.Date, server_default=func.current_date(), nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
 
     user = db.relationship("User", backref=db.backref("questions", lazy=True))

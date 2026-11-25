@@ -100,3 +100,28 @@ def update_user_data(
     db.session.commit()
     logger.info("Cuenta actualizada correctamente para user_id=%s", user.id)
     return user
+
+
+def assign_user_role(target_user_id: int, new_role: str | UserRole) -> User:
+    if isinstance(new_role, UserRole):
+        parsed_role = new_role
+    elif isinstance(new_role, str):
+        normalized = new_role.strip().lower()
+        try:
+            parsed_role = UserRole(normalized)
+        except ValueError as exc:
+            raise UserServiceError(
+                "Rol inválido. Los valores permitidos son: 'admin' o 'general'."
+            ) from exc
+    else:
+        raise UserServiceError("El rol debe ser una cadena de texto válida.")
+
+    user = db.session.get(User, target_user_id)
+    if user is None:
+        raise LookupError("El usuario destino no existe.")
+
+    user.role = parsed_role
+    db.session.commit()
+    db.session.refresh(user)
+    logger.info("Rol actualizado a '%s' para user_id=%s", parsed_role.value, user.id)
+    return user

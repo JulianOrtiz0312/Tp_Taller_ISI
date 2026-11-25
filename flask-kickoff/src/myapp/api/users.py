@@ -1,8 +1,10 @@
 from flask import Blueprint, jsonify, request, session
 
+from myapp.decorators import admin_required
 from myapp.services.user_service import (
     DuplicateEmailError,
     UserServiceError,
+    assign_user_role,
     list_users,
     register_user,
     update_user_data,
@@ -71,3 +73,44 @@ def patch_user(user_id: int):
         return jsonify({"error": str(exc)}), 404
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
+
+
+@api_users_bp.patch("/<int:user_id>/role")
+@admin_required
+def patch_user_role(user_id: int):
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return (
+            jsonify({"error": "El cuerpo de la solicitud debe ser un JSON válido."}),
+            400,
+        )
+
+    raw_role = payload.get("role")
+    if not isinstance(raw_role, str):
+        return jsonify(
+            {"error": "El campo 'role' es obligatorio y debe ser texto."}
+        ), 400
+
+    try:
+        updated_user = assign_user_role(target_user_id=user_id, new_role=raw_role)
+        return jsonify(updated_user.to_dict()), 200
+    except LookupError as exc:
+        return jsonify({"error": str(exc)}), 404
+    except UserServiceError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+
+@api_users_bp.get("/admin/maintenance")
+@admin_required
+def admin_maintenance():
+    users = list_users()
+    return (
+        jsonify(
+            {
+                "status": "ok",
+                "message": "Acceso concedido a herramientas de mantenimiento.",
+                "total_users": len(users),
+            }
+        ),
+        200,
+    )

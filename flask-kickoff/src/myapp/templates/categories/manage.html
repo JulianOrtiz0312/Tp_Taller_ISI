@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Categorías{% endblock %}
+
+{% block content %}
+  <h1>Categorías</h1>
+
+  {% if not is_admin %}
+    <p>Solo los administradores pueden eliminar categorías.</p>
+  {% endif %}
+
+  {% if categories %}
+    <ul>
+      {% for cat in categories %}
+        <li>
+          <strong>{{ cat.name }}</strong>
+          {% if is_admin %}
+            <form method="post" action="{{ url_for('web_categories.delete_category_web', category_id=cat.id) }}">
+              <label for="reason-{{ cat.id }}">Motivo:</label>
+              <input id="reason-{{ cat.id }}" name="reason" type="text" required>
+              <button type="submit">Eliminar</button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No hay categorías cargadas.</p>
+  {% endif %}
+{% endblock %}

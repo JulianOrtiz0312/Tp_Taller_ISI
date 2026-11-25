@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, session, request, url_for
 
 from myapp.services.user_service import UserServiceError, list_users, register_user
 
@@ -33,3 +33,13 @@ def register():
             )
 
     return render_template("users/register.html")
+
+@users_bp.post("/logout")
+def logout():
+    if "user_id" not in session:
+        flash("no hay sesion activa")
+        return redirect(url_for("users.index"))
+    
+    session.clear()
+    flash("sesion cerrada correctamente")
+    return redirect(url_for("users.index"))

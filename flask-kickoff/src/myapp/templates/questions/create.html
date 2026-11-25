@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Nueva Pregunta</h1>
+
+{% if error %}
+  <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+  <div>
+    <label for="titulo">Título</label>
+    <input
+      type="text"
+      id="titulo"
+      name="titulo"
+      maxlength="200"
+      value="{{ titulo or '' }}"
+      required
+    >
+  </div>
+
+  <div>
+    <label for="category_id">Categoría</label>
+    <select id="category_id" name="category_id" required>
+      <option value="">-- Seleccioná una categoría --</option>
+      {% for cat in categories %}
+        <option
+          value="{{ cat.id }}"
+          {% if selected_category_id == cat.id %}selected{% endif %}
+        >
+          {{ cat.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div>
+    <label for="cuerpo">Cuerpo de la pregunta</label>
+    <textarea id="cuerpo" name="cuerpo" rows="5" required>{{ cuerpo or '' }}</textarea>
+  </div>
+
+  <button type="submit">Publicar pregunta</button>
+</form>
+{% endblock %}

@@ -1,5 +1,6 @@
 from myapp.extensions import db
 
+
 class Category(db.Model):
     __tablename__ = "categories"
 
@@ -10,7 +11,7 @@ class Category(db.Model):
         return f"<Category {self.name}>"
 
     def to_dict(self):
-        return { 
+        return {
             "id": self.id,
             "name": self.name,
         }

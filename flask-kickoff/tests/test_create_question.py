@@ -3,7 +3,6 @@ import pytest
 from myapp.extensions import db
 from myapp.models.category import Category
 from myapp.models.question import Question
-from myapp.models.user import User
 from myapp.services.user_service import register_user
 
 
@@ -51,7 +50,9 @@ def test_create_question_api_success(client, app, seed_user_and_category):
 
     with app.app_context():
         saved = db.session.scalar(
-            db.select(Question).where(Question.titulo == "¿Cómo funciona Blueprint en Flask?")
+            db.select(Question).where(
+                Question.titulo == "¿Cómo funciona Blueprint en Flask?"
+            )
         )
         assert saved is not None
 

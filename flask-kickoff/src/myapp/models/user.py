@@ -1,4 +1,3 @@
-
 import enum
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -16,13 +15,11 @@ class User(db.Model):
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
-
     role = db.Column(
         db.Enum(UserRole),
         nullable=False,
         default=UserRole.GENERAL,
     )
-
 
     def set_password(self, password: str) -> None:
         self.password_hash = generate_password_hash(password)
@@ -31,11 +28,9 @@ class User(db.Model):
 
         if not self.password_hash:
             return False
-        return check_password_hash(self.password_hash, password)        
+        return check_password_hash(self.password_hash, password)
 
-
-
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<User {self.email}>"
 
     def to_dict(self) -> dict:

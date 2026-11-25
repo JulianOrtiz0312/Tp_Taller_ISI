@@ -7,6 +7,7 @@ from myapp.models import Category, User, UserRole
 
 categories_bp = Blueprint("categories", __name__, url_prefix="/categories")
 
+
 def _get_current_admin() -> tuple[User | None, int | None]:
     user_id = session.get("user_id")
     if not user_id:
@@ -21,6 +22,7 @@ def _get_current_admin() -> tuple[User | None, int | None]:
 
     return user, None
 
+
 @categories_bp.post("")
 def create_category():
     _, auth_error = _get_current_admin()
@@ -31,18 +33,22 @@ def create_category():
 
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
-        return jsonify({"error": "El cuerpo de la solicitud debe ser un JSON valido."}), 400
+        return jsonify(
+            {"error": "El cuerpo de la solicitud debe ser un JSON valido."}
+        ), 400
 
     raw_name = payload.get("name")
     if not isinstance(raw_name, str) or not raw_name.strip():
-        return jsonify({"error": "El nombre de la categoria no puede estar vacio."}), 400
+        return jsonify(
+            {"error": "El nombre de la categoria no puede estar vacio."}
+        ), 400
 
     name = raw_name.strip()
 
     existing = Category.query.filter(func.lower(Category.name) == name.lower()).first()
     if existing:
         return jsonify({"error": "Ya existe una categoria con ese nombre."}), 409
-    
+
     category = Category(name=name)
     db.session.add(category)
 

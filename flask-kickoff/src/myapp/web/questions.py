@@ -14,7 +14,9 @@ def create():
         flash("Debes iniciar sesión para publicar una pregunta.")
         return redirect(url_for("users.index"))
 
-    categories = db.session.execute(db.select(Category).order_by(Category.name)).scalars().all()
+    categories = (
+        db.session.execute(db.select(Category).order_by(Category.name)).scalars().all()
+    )
 
     if request.method == "POST":
         titulo = request.form.get("titulo", "")

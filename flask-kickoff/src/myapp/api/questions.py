@@ -13,7 +13,9 @@ def api_create_question():
 
     payload = request.get_json(silent=True)
     if not isinstance(payload, dict):
-        return jsonify({"error": "El cuerpo de la solicitud debe ser un JSON válido."}), 400
+        return jsonify(
+            {"error": "El cuerpo de la solicitud debe ser un JSON válido."}
+        ), 400
 
     raw_titulo = payload.get("titulo")
     raw_cuerpo = payload.get("cuerpo")
@@ -23,7 +25,9 @@ def api_create_question():
         return jsonify({"error": "Los campos titulo y cuerpo deben ser texto."}), 400
 
     if not isinstance(raw_category_id, int) or isinstance(raw_category_id, bool):
-        return jsonify({"error": "El campo category_id debe ser un número entero."}), 400
+        return jsonify(
+            {"error": "El campo category_id debe ser un número entero."}
+        ), 400
 
     try:
         question = create_question(

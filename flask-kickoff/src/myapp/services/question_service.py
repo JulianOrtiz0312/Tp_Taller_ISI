@@ -6,15 +6,19 @@ from myapp.models.question import Question
 from myapp.models.user import User
 
 
-class TittleError(ValueError):
+class QuestionServiceError(ValueError):
     pass
 
 
-class BodyError(ValueError):
+class TittleError(QuestionServiceError):
     pass
 
 
-class UserorCategoryError(ValueError):
+class BodyError(QuestionServiceError):
+    pass
+
+
+class UserorCategoryError(QuestionServiceError):
     pass
 
 
@@ -58,8 +62,8 @@ def create_question(
     question = Question(
         titulo=titulo_clean,
         cuerpo=cuerpo_clean,
-        categoria=category,
-        autor=user,
+        category=category,
+        user=user,
     )
 
     db.session.add(question)

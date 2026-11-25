@@ -1,8 +1,8 @@
-"""add password_hash and role to users
+"""add password_hash and role to user
 
-Revision ID: 1e8387ae66af
+Revision ID: 613b9d3052f5
 Revises: a2ab17a5c0d3
-Create Date: 2026-11-23 01:41:02.474561
+Create Date: 2026-11-24 09:13:52.894405
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "1e8387ae66af"
+revision: str = "613b9d3052f5"
 down_revision: str | Sequence[str] | None = "a2ab17a5c0d3"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -24,7 +24,10 @@ def upgrade() -> None:
     op.add_column(
         "user", sa.Column("password_hash", sa.String(length=255), nullable=False)
     )
-    op.add_column("user", sa.Column("role", sa.String(length=50), nullable=False))
+    op.add_column(
+        "user",
+        sa.Column("role", sa.Enum("ADMIN", "GENERAL", name="userrole"), nullable=False),
+    )
     # ### end Alembic commands ###
 
 

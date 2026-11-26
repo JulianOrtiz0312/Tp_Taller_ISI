@@ -81,19 +81,20 @@ def create_question(
 class ErrorDelete(QuestionServiceError):
     pass
 
+
 class ErrorPermiso(QuestionServiceError):
     pass
+
 
 class ErrorUser(QuestionServiceError):
     pass
 
+
 class ErrorQuestion(QuestionServiceError):
     pass
 
-def delete_question(
-    question_id: int,
-    user_id:int
-) -> None: 
+
+def delete_question(question_id: int, user_id: int) -> None:
     question = db.session.get(Question, question_id)
 
     if question is None:
@@ -111,12 +112,15 @@ def delete_question(
 
     try:
         db.session.commit()
-    except IntegrityError as exc:
+    except IntegrityError:
         db.session.rollback()
         raise ErrorDelete("Hubo un error en eliminar la pregunta")
 
+
 def list_questions() -> list[Question]:
-    return list(db.session.scalars(db.select(Question).order_by(Question.id.desc())).all())
+    return list(
+        db.session.scalars(db.select(Question).order_by(Question.id.desc())).all()
+    )
 
 
 def get_question(question_id: int) -> Question:

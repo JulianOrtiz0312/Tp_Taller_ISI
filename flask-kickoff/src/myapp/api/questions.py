@@ -1,13 +1,16 @@
 from flask import Blueprint, jsonify, request, session
 
-from myapp.services.question_service import( 
-    QuestionServiceError, 
-    create_question, 
-    delete_question,
+from myapp.services.question_service import (
     ErrorDelete,
     ErrorPermiso,
+    ErrorQuestion,
     ErrorUser,
-    )
+    QuestionServiceError,
+    create_question,
+    delete_question,
+    get_question,
+    list_questions,
+)
 
 api_questions_bp = Blueprint("api_questions", __name__, url_prefix="/api/questions")
 
@@ -28,6 +31,8 @@ def get_question_detail(question_id: int):
     return jsonify(question.to_dict()), 200
 
 
+@api_questions_bp.post("")
+@api_questions_bp.post("/")
 @api_questions_bp.post("/create")
 def api_create_question():
     user_id = session.get("user_id")
@@ -63,15 +68,18 @@ def api_create_question():
     except QuestionServiceError as exc:
         return jsonify({"error": str(exc)}), 400
 
+
 @api_questions_bp.delete("/<int:question_id>/delete")
-def api_delete_question():
+def api_delete_question(question_id: int):
     user_id = session.get("user_id")
     if not user_id:
-        return jsonify({"error": "Debes iniciar sesion para poder eliminar una pregunta"}), 401
+        return jsonify(
+            {"error": "Debes iniciar sesion para poder eliminar una pregunta"}
+        ), 401
 
     try:
         delete_question(question_id=question_id, user_id=user_id)
-    except ErrorDelete as exc:
+    except (ErrorDelete, ErrorQuestion) as exc:
         return jsonify({"error": str(exc)}), 404
     except ErrorUser as exc:
         return jsonify({"error": str(exc)}), 401
@@ -79,6 +87,5 @@ def api_delete_question():
         return jsonify({"error": str(exc)}), 403
     except QuestionServiceError as exc:
         return jsonify({"error": str(exc)}), 400
-
 
     return jsonify({"message": "Pregunta eliminada correctamente"}), 200

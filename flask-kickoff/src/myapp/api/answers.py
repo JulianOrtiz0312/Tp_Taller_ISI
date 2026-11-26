@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, session
+
 from myapp.services.answer_service import (
     AnswerError,
     ErrorAutor,
@@ -17,7 +18,9 @@ def post_answer(question_id: int):
 
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
-        return jsonify({"error": "El cuerpo de la petición debe ser un JSON válido."}), 400
+        return jsonify(
+            {"error": "El cuerpo de la petición debe ser un JSON válido."}
+        ), 400
 
     cuerpo = data.get("cuerpo")
 

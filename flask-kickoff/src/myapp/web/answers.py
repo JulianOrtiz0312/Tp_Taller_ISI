@@ -8,6 +8,7 @@ from flask import (
     session,
     url_for,
 )
+
 from myapp.extensions import db
 from myapp.models.question import Question
 from myapp.services.answer_service import (

@@ -9,12 +9,17 @@
   <header>
     <nav>
       <a href="{{ url_for('users.index') }}">Usuarios</a> |
-      <a href="{{ url_for('users.register') }}">Registrarse</a>
+      <a href="{{ url_for('web_categories.manage') }}">Categorías</a> |
+      <a href="{{ url_for('questions.index') }}">Preguntas</a> |
+      <a href="{{ url_for('ia.create') }}">IA</a>
       {% if session.get("user_id") %}
         | <span>Hola, {{ session.get("user_name") }}</span>
         <form action="{{ url_for('users.logout') }}" method="POST" style="display:inline;">
           <button type="submit">Log Out</button>
         </form>
+      {% else %}
+        | <a href="{{ url_for('users.login') }}">Iniciar sesión</a>
+        | <a href="{{ url_for('users.register') }}">Registrarse</a>
       {% endif %}
     </nav>
   </header>

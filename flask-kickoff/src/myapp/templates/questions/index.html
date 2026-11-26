@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Preguntas</h1>
+
+  <p><a href="{{ url_for('questions.create') }}">Nueva pregunta</a></p>
+
+  {% if questions %}
+    <ul>
+      {% for question in questions %}
+        <li>
+          <a href="{{ url_for('questions.detail', question_id=question.id) }}">
+            <strong>{{ question.title }}</strong>
+          </a>
+          <span> — por {{ question.user.name }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Todavía no hay preguntas publicadas.</p>
+  {% endif %}
+{% endblock %}

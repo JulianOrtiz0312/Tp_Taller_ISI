@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <p><a href="{{ url_for('questions.index') }}">← Volver a preguntas</a></p>
+
+  <h1>{{ question.title }}</h1>
+  <p><small>Publicado por {{ question.user.name }}</small></p>
+  <p>{{ question.body }}</p>
+
+  {% if session.get("user_id") == question.user_id %}
+  <form
+    method="POST"
+    action="{{ url_for('questions.delete', question_id=question.id) }}"
+    onsubmit="return confirm('¿Seguro que querés eliminar esta pregunta?');"
+  >
+    <button type="submit">Eliminar pregunta</button>
+  </form>
+  {% endif %}
+
+  <hr>
+
+  <h2>Respuestas</h2>
+  <p><a href="{{ url_for('answers.create', question_id=question.id) }}">Responder esta pregunta</a></p>
+
+  {% if question.answers %}
+    <ul>
+      {% for answer in question.answers %}
+        <li>
+          <p>{{ answer.cuerpo }}</p>
+          <small>Por {{ answer.user.name }}</small>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Todavía no hay respuestas.</p>
+  {% endif %}
+{% endblock %}

@@ -4,6 +4,7 @@ from myapp.extensions import db
 from myapp.models.category import Category
 from myapp.models.question import Question
 from myapp.models.user import User
+from myapp.services.auto_answer_service import generate_automatic_answer
 
 
 class QuestionServiceError(ValueError):
@@ -73,6 +74,13 @@ def create_question(
     except IntegrityError as exc:
         db.session.rollback()
         raise UserorCategoryError("Error en la integridad en la creación.") from exc
+
+    db.session.refresh(question)
+
+    try:
+        generate_automatic_answer(question)
+    except Exception:  # noqa: BLE001
+        db.session.rollback()
 
     db.session.refresh(question)
     return question

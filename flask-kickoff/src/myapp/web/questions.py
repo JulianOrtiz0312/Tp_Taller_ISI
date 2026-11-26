@@ -6,6 +6,8 @@ from myapp.services.question_service import (
     QuestionServiceError, 
     create_question,
     delete_question,
+    list_questions,
+    get_question,
     ErrorDelete,
     ErrorPermiso,
     ErrorUser,

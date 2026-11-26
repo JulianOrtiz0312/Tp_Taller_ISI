@@ -1,57 +1,73 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <p><a href="{{ url_for('questions.index') }}">← Volver a preguntas</a></p>
+<div class="mb-3">
+  <a href="{{ url_for('questions.index') }}" class="btn btn-outline-secondary btn-sm">← Volver a preguntas</a>
+</div>
 
-  <h1>{{ question.titulo }}</h1>
-  <p><small>Publicado por {{ question.user.name }}</small></p>
-  <p>{{ question.cuerpo }}</p>
+<div class="card shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h1 class="h3 mb-2">{{ question.titulo }}</h1>
+    <p class="text-muted small mb-3">Publicado por {{ question.user.name }}</p>
+    <p class="mb-0" style="white-space: pre-line;">{{ question.cuerpo }}</p>
 
-  {% if session.get("user_id") == question.user_id %}
-    <button type="button" onclick="document.getElementById('confirm-dialog').showModal()">
-      Eliminar pregunta
-    </button>
-
-    <dialog id="confirm-dialog" style="padding: 20px; border-radius: 8px; border: 1px solid #ccc;">
-      <p><strong>¿Seguro que querés eliminar esta pregunta?</strong></p>
-
-      <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
-        <button type="button" onclick="document.getElementById('confirm-dialog').close()">
-          No
+    {% if session.get("user_id") == question.user_id %}
+      <div class="mt-4 pt-3 border-top">
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="document.getElementById('confirm-dialog').showModal()">
+          Eliminar pregunta
         </button>
 
-        <form method="POST" action="{{ url_for('questions.delete', question_id=question.id) }}" style="margin: 0;">
-          <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; cursor: pointer;">
-            Sí
-          </button>
-        </form>
+        <dialog id="confirm-dialog" class="border-0 rounded-3 shadow p-4">
+          <p class="mb-3"><strong>¿Seguro que querés eliminar esta pregunta?</strong></p>
+
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('confirm-dialog').close()">
+              No
+            </button>
+
+            <form method="POST" action="{{ url_for('questions.delete', question_id=question.id) }}" class="m-0">
+              <button type="submit" class="btn btn-danger btn-sm">
+                Sí
+              </button>
+            </form>
+          </div>
+        </dialog>
       </div>
-    </dialog>
-  {% endif %}
+    {% endif %}
+  </div>
+</div>
 
-  <hr>
-
-  <h2>Respuestas</h2>
-  <a href="{{ url_for('answers.create', question_id=question.id) }}">
-    <button type="button">Responder esta pregunta</button>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4 mb-0">Respuestas</h2>
+  <a href="{{ url_for('answers.create', question_id=question.id) }}" class="btn btn-primary btn-sm">
+    Responder esta pregunta
   </a>
+</div>
 
-  {% if question.answers %}
-    <ul>
-      {% for answer in question.answers %}
-        <li>
-          <p>{{ answer.cuerpo }}</p>
-          <small>Por {{ answer.autor.name }}</small>
+{% if question.answers %}
+  <div class="d-flex flex-column gap-3">
+    {% for answer in question.answers %}
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="mb-2" style="white-space: pre-line;">{{ answer.cuerpo }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">Por {{ answer.autor.name }}</small>
 
-          {% if not answer.accept and session.get("user_id") == answer.autor.id %}
-            <a href="{{ url_for('answers.edit', answer_id=answer.id) }}">
-              <button type="button">Editar</button>
-            </a>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Todavía no hay respuestas.</p>
-  {% endif %}
+            {% if not answer.accept and session.get("user_id") == answer.autor.id %}
+              <a href="{{ url_for('answers.edit', answer_id=answer.id) }}" class="btn btn-outline-secondary btn-sm">
+                Editar
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="card-body text-muted">
+      Todavía no hay respuestas.
+    </div>
+  </div>
+{% endif %}
 {% endblock %}

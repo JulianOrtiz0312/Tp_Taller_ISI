@@ -4,36 +4,62 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Plataforma Q&A{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-light">
   <header>
-    <nav>
-      <a href="{{ url_for('users.index') }}">Usuarios</a> |
-      <a href="{{ url_for('web_categories.manage') }}">Categorías</a> |
-      <a href="{{ url_for('questions.index') }}">Preguntas</a> |
-      <a href="{{ url_for('ia.create') }}">IA</a>
-      {% if session.get("user_id") %}
-        | <span>Hola, {{ session.get("user_name") }}</span>
-        <form action="{{ url_for('users.logout') }}" method="POST" style="display:inline;">
-          <button type="submit">Log Out</button>
-        </form>
-      {% else %}
-        | <a href="{{ url_for('users.login') }}">Iniciar sesión</a>
-        | <a href="{{ url_for('users.register') }}">Registrarse</a>
-      {% endif %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="{{ url_for('questions.index') }}">Foro Q&A</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Alternar navegación">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNavbar">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('questions.index') }}">Preguntas</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('web_categories.manage') }}">Categorías</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('users.index') }}">Usuarios</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ url_for('ia.create') }}">IA</a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-2">
+            {% if session.get("user_id") %}
+              <span class="navbar-text text-light me-2">Hola, {{ session.get("user_name") }}</span>
+              <form action="{{ url_for('users.logout') }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm">Log Out</button>
+              </form>
+            {% else %}
+              <a class="btn btn-outline-light btn-sm" href="{{ url_for('users.login') }}">Iniciar sesión</a>
+              <a class="btn btn-primary btn-sm" href="{{ url_for('users.register') }}">Registrarse</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </nav>
   </header>
-  <main>
+
+  <main class="container py-4">
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul>
-          {% for msg in messages %}
-            <li>{{ msg }}</li>
-          {% endfor %}
-        </ul>
+        {% for msg in messages %}
+          <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+          </div>
+        {% endfor %}
       {% endif %}
     {% endwith %}
+
     {% block content %}{% endblock %}
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

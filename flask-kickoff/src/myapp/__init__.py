@@ -19,6 +19,7 @@ def create_app(config_class=Config):
     from myapp.api.users import api_users_bp
     from myapp.web.questions import questions_bp
     from myapp.web.users import users_bp
+    from myapp.web.ia import ia_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(categories_bp)
@@ -27,5 +28,6 @@ def create_app(config_class=Config):
     app.register_blueprint(api_users_bp)
     app.register_blueprint(questions_bp)
     app.register_blueprint(users_bp)
+    app.register_blueprint(ia_bp)
 
     return app

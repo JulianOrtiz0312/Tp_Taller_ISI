@@ -30,6 +30,13 @@
     {% for ia in ia_types %}
       <li>
         {{ ia.name }} - {% if ia.is_active %}Activa{% else %}Inactiva{% endif %}
+        {% if ia.is_selected %}
+          <strong>(Seleccionada para respuestas automáticas)</strong>
+        {% elif ia.is_active %}
+          <form method="post" action="{{ url_for('ia.switch', ia_id=ia.id) }}" style="display:inline;">
+            <button type="submit">Seleccionar</button>
+          </form>
+        {% endif %}
       </li>
     {% endfor %}
   </ul>

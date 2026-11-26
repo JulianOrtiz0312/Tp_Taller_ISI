@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request, session
 
+from myapp.decorators import login_required
 from myapp.services.answer_service import (
+    AcceptedAnswerDeletionError,
     AnswerError,
     ErrorAnswerAccept,
     ErrorAnswerNotFound,
@@ -10,6 +12,7 @@ from myapp.services.answer_service import (
     ErrorModify,
     ErrorQuestion,
     create_answer,
+    delete_answer,
     modify_answer,
     set_answer_acceptance,
     toggle_answer_acceptance,
@@ -76,6 +79,7 @@ def accept_answer(id_answer: int):
         data["fecha"] = data["fecha"].isoformat()
     return jsonify(data), 200
 
+
 @api_answers_bp.route("/<int:answer_id>", methods=["PUT", "PATCH"])
 def update(answer_id: int):
     user_id = session.get("user_id")
@@ -104,3 +108,18 @@ def update(answer_id: int):
 
     return jsonify(answer.to_dict()), 200
 
+
+@api_answers_bp.delete("/answers/<int:answer_id>")
+@login_required
+def remove_answer(answer_id: int):
+    acting_user_id = session.get("user_id")
+
+    try:
+        delete_answer(acting_user_id=acting_user_id, answer_id=answer_id)
+        return jsonify({"message": "Respuesta eliminada correctamente."}), 200
+    except LookupError as exc:
+        return jsonify({"error": str(exc)}), 404
+    except AcceptedAnswerDeletionError as exc:
+        return jsonify({"error": str(exc)}), 400
+    except PermissionError as exc:
+        return jsonify({"error": str(exc)}), 403

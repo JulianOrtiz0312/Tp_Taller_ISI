@@ -20,10 +20,9 @@ def create_app(config_class=Config):
     from myapp.api.users import api_users_bp
     from myapp.web.answers import answers_bp
     from myapp.web.categories import web_categories_bp
+    from myapp.web.ia import ia_bp
     from myapp.web.questions import questions_bp
     from myapp.web.users import users_bp
-    from myapp.web.ia import ia_bp
-    from myapp.web.answers import answers_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(categories_bp)

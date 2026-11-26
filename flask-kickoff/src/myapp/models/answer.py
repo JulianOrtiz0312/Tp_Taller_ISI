@@ -12,7 +12,7 @@ class Answer(db.Model):
     accept = db.Column(db.Boolean, default=False, nullable=False)
 
     id_Autor = db.Column(
-        db.Integer, db.ForeignKey("user.id", ondelete="NO ACTION"), nullable=False
+        db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), nullable=True
     )
     id_Question = db.Column(
         db.Integer, db.ForeignKey("question.id", ondelete="NO ACTION"), nullable=False

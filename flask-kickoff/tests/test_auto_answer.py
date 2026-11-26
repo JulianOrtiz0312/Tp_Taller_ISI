@@ -98,7 +98,7 @@ def test_uses_active_ia_type_when_table_exists(app, seed_data):
     with app.app_context():
         db.session.execute(
             text(
-                "CREATE TABLE ia_types ("
+                "CREATE TABLE IF NOT EXISTS ia_types ("
                 "id INTEGER PRIMARY KEY, "
                 "name VARCHAR(120) NOT NULL, "
                 "is_active BOOLEAN NOT NULL)"

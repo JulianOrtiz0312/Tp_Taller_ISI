@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Añadir Inteligencia Artificial</h1>
+
+{% if error %}
+  <p style="color: red;">{{ error }}</p>
+{% endif %}
+
+<form method="post">
+  <div>
+    <label for="name">Nombre de la IA</label>
+    <input
+      type="text"
+      id="name"
+      name="name"
+      maxlength="100"
+      value="{{ name or '' }}"
+      placeholder="Ej: Gemini, ChatGPT, Claude"
+      required
+    >
+  </div>
+
+  <button type="submit">Añadir IA</button>
+</form>
+
+<h2>IAs registradas</h2>
+{% if ia_types %}
+  <ul>
+    {% for ia in ia_types %}
+      <li>
+        {{ ia.name }} - {% if ia.is_active %}Activa{% else %}Inactiva{% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No hay inteligencias artificiales registradas todavía.</p>
+{% endif %}
+{% endblock %}

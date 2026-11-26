@@ -1,19 +1,29 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    abort,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 
 from myapp.extensions import db
 from myapp.models.category import Category
 from myapp.services.question_service import (
-    QuestionServiceError, 
-    create_question,
-    delete_question,
-    list_questions,
-    get_question,
     ErrorDelete,
     ErrorPermiso,
     ErrorUser,
-    )
+    QuestionServiceError,
+    create_question,
+    delete_question,
+    get_question,
+    list_questions,
+)
 
 questions_bp = Blueprint("questions", __name__, url_prefix="/questions")
+
 
 @questions_bp.get("/")
 def index():
@@ -106,5 +116,4 @@ def delete(question_id: int):
     except QuestionServiceError as exc:
         flash(str(exc), "error")
 
-    
     return redirect(url_for("questions.index"))

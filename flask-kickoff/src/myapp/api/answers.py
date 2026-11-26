@@ -80,7 +80,9 @@ def accept_answer(id_answer: int):
 def update(answer_id: int):
     user_id = session.get("user_id")
     if not user_id:
-        return jsonify({"error": "Debes iniciar sesión para editar una respuesta."}), 401
+        return jsonify(
+            {"error": "Debes iniciar sesión para editar una respuesta."}
+        ), 401
 
     data = request.get_json(silent=True) or {}
     new_cuerpo = data.get("cuerpo")

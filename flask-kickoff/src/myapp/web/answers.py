@@ -10,12 +10,18 @@ from flask import (
 )
 
 from myapp.extensions import db
+from myapp.models.answer import Answer
 from myapp.models.question import Question
 from myapp.services.answer_service import (
     AnswerError,
+    ErrorAnswerAccept,
     ErrorAutor,
+    ErrorBody,
+    ErrorIDAnswer,
+    ErrorModify,
     ErrorQuestion,
     create_answer,
+    modify_answer,
 )
 
 answers_bp = Blueprint("answers", __name__, url_prefix="/questions")
@@ -62,20 +68,6 @@ def create(question_id: int):
         cuerpo="",
     )
 
-from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
-
-from myapp.extensions import db
-from myapp.models.answer import Answer
-from myapp.services.answer_service import (
-    AnswerError,
-    ErrorAnswerAccept,
-    ErrorAutor,
-    ErrorBody,
-    ErrorIDAnswer,
-    ErrorModify,
-    modify_answer,
-)
-
 
 @answers_bp.route("/<int:answer_id>/edit", methods=["GET", "POST"])
 def edit(answer_id: int):
@@ -102,9 +94,20 @@ def edit(answer_id: int):
                 user_id=user_id,
             )
             flash("Respuesta actualizada correctamente.", "success")
-            return redirect(url_for("questions.detail", question_id=updated_answer.question_id))
-        except (ErrorBody, ErrorAutor, ErrorAnswerAccept, ErrorIDAnswer, ErrorModify, AnswerError) as exc:
+            return redirect(
+                url_for("questions.detail", question_id=updated_answer.question_id)
+            )
+        except (
+            ErrorBody,
+            ErrorAutor,
+            ErrorAnswerAccept,
+            ErrorIDAnswer,
+            ErrorModify,
+            AnswerError,
+        ) as exc:
             flash(str(exc), "error")
-            return render_template("answers/edit.html", answer=answer, cuerpo=new_cuerpo)
+            return render_template(
+                "answers/edit.html", answer=answer, cuerpo=new_cuerpo
+            )
 
     return render_template("answers/edit.html", answer=answer, cuerpo=answer.cuerpo)

@@ -96,17 +96,16 @@ def set_answer_acceptance(
 class ErrorModify(AnswerError):
     pass
 
-class ErrorIDAnswer(AnswerError) :
+
+class ErrorIDAnswer(AnswerError):
     pass
+
 
 class ErrorAnswerAccept(AnswerError):
     pass
 
-def modify_answer(
-    answer_id:int, 
-    new_cuerpo: str,
-    user_id: int
-    ) -> Answer:
+
+def modify_answer(answer_id: int, new_cuerpo: str, user_id: int) -> Answer:
 
     if not isinstance(new_cuerpo, str):
         raise ErrorBody("El cuerpo nuevo debe ser un texto")
@@ -129,13 +128,13 @@ def modify_answer(
 
     answer = db.session.get(Answer, answer_id)
 
-    if answer is None: 
+    if answer is None:
         raise ErrorIDAnswer("No existe la respuesta que quieres modificar")
 
     if answer.accept is True:
         raise ErrorAnswerAccept("No se puede modificar una respuesta aceptada")
 
-    if answer.autor.id != user_id and user.role != "admin" :
+    if answer.autor.id != user_id and user.role != "admin":
         raise ErrorAutor("No tienes permiso de modificar la respuesta")
 
     answer.cuerpo = cuerpo

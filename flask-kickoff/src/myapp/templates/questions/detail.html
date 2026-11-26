@@ -44,7 +44,7 @@
           <small>Por {{ answer.autor.name }}</small>
 
           {% if not answer.accept and session.get("user_id") == answer.autor.id %}
-            <a href="{{ url_for('answers.edit', answer_id=answer.id) }}">
+            <a href="{{ url_for('answers.edit', answer_id=answer.id_answer) }}">
               <button type="button">Editar</button>
             </a>
           {% endif %}

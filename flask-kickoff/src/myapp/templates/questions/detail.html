@@ -8,7 +8,7 @@
 <div class="card shadow-sm mb-4">
   <div class="card-body p-4">
     <h1 class="h3 mb-2">{{ question.titulo }}</h1>
-    <p class="text-muted small mb-3">Publicado por {{ question.user.name }}</p>
+    <p class="text-muted small mb-3">Publicado por {{ question.user.name if question.user else 'Anónimo' }}</p>
     <p class="mb-0" style="white-space: pre-line;">{{ question.cuerpo }}</p>
 
     {% if session.get("user_id") == question.user_id %}
@@ -44,22 +44,30 @@
   </a>
 </div>
 
-  {% if question.answers %}
-    <ul>
-      {% for answer in question.answers %}
-        <li>
-          <p>{{ answer.cuerpo }}</p>
-          <small>Por {{ answer.autor.name }}</small>
+{% if question.answers %}
+  <div class="d-flex flex-column gap-3">
+    {% for answer in question.answers %}
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <p class="mb-2" style="white-space: pre-line;">{{ answer.cuerpo }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">Por {{ answer.autor.name if answer.autor else 'IA / Anónimo' }}</small>
 
-          {% if not answer.accept and session.get("user_id") == answer.autor.id %}
-            <a href="{{ url_for('answers.edit', answer_id=answer.id_answer) }}">
-              <button type="button">Editar</button>
-            </a>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Todavía no hay respuestas.</p>
-  {% endif %}
+            {% if not answer.accept and answer.autor and session.get("user_id") == answer.autor.id %}
+              <a href="{{ url_for('answers.edit', answer_id=answer.id_answer) }}" class="btn btn-outline-secondary btn-sm">
+                Editar
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="card shadow-sm">
+    <div class="card-body text-muted">
+      Todavía no hay respuestas.
+    </div>
+  </div>
+{% endif %}
 {% endblock %}

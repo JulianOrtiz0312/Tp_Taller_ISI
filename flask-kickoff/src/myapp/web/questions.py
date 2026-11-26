@@ -106,7 +106,7 @@ def delete(question_id: int):
     try:
         delete_question(question_id=question_id, user_id=user_id)
         flash("Pregunta eliminada correctamente.", "success")
-    except ErrorDelete:
+    except ErrorDelete as exc:
         flash(str(exc), "error")
         return redirect(url_for("questions.detail", question_id=question_id))
     except ErrorUser as exc:

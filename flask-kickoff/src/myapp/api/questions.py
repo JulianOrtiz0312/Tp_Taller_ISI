@@ -7,8 +7,6 @@ from myapp.services.question_service import(
     ErrorDelete,
     ErrorPermiso,
     ErrorUser,
-    QuestionServiceError,
-    delete_question
     )
 
 api_questions_bp = Blueprint("api_questions", __name__, url_prefix="/api/questions")

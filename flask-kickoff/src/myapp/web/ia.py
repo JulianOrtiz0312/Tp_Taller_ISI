@@ -5,6 +5,7 @@ from myapp.services.ia_service import (
     UnauthorizedIAError,
     create_ia_type,
     list_ia_types,
+    switch_ia_type,
 )
 
 ia_bp = Blueprint("ia", __name__, url_prefix="/ia")
@@ -48,3 +49,36 @@ def create():
             )
 
     return render_template("ia/create.html", ia_types=ia_types)
+
+
+@ia_bp.route("/<int:ia_id>/switch",methods=["POST"])
+def switch(ia_id:int):
+    user_id = session.get("user_id")
+    if not user_id:
+        flash("no se inicio sesion para intercabiar IA")
+        return redirect(url_for("users.index"))
+
+    try:
+        ia = switch_ia_type(ia_id = ia_id, user_id = user_id)
+        flash(f"Inteligencia artificial intercambiada a {ia.name}")
+        return redirect(url_for("ia.create"))
+    except UnauthorizedIAError as exc:
+        ia_types = list_ia_types()
+        return (
+            render_template(
+                "ia/create.html",
+                error=str(exc),
+                ia_types=ia_types,
+            ),
+            403,
+        )
+    except IAServiceError as exc:
+        ia_types = list_ia_types()
+        return (
+            render_template(
+                "ia/create.html",
+                error=str(exc),
+                ia_types=ia_types,
+            ),
+            400,
+        )

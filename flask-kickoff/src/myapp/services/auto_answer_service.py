@@ -1,10 +1,9 @@
-from sqlalchemy import inspect, text
-
 from myapp.extensions import db
 from myapp.models.answer import Answer
 from myapp.models.question import Question
 from myapp.models.user import User, UserRole
 from myapp.services.answer_service import create_answer
+from myapp.services.ia_service import get_selected_ia_type, list_ia_types
 
 AI_USER_EMAIL = "ia@sistema.local"
 DEFAULT_AI_NAME = "Asistente IA"
@@ -28,16 +27,13 @@ def get_or_create_ai_user() -> User:
 
 
 def _get_active_ai_name() -> str:
-    """Obtiene el nombre de una IA activa si existe la tabla ia_types; si no, usa el valor por defecto."""
-    inspector = inspect(db.engine)
-    if not inspector.has_table("ia_types"):
-        return DEFAULT_AI_NAME
+    selected_ia = get_selected_ia_type()
+    if selected_ia is not None:
+        return selected_ia.name
 
-    row = db.session.execute(
-        text("SELECT name FROM ia_types WHERE is_active = 1 ORDER BY id ASC LIMIT 1")
-    ).first()
-    if row and row[0]:
-        return str(row[0])
+    active_ias = list_ia_types(only_active=True)
+    if active_ias:
+        return active_ias[0].name
 
     return DEFAULT_AI_NAME
 

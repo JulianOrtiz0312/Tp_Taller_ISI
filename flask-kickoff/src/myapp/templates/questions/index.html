@@ -10,9 +10,13 @@
       {% for question in questions %}
         <li>
           <a href="{{ url_for('questions.detail', question_id=question.id) }}">
-            <strong>{{ question.title }}</strong>
+            <strong>{{ question.titulo }}</strong>
           </a>
-          <span> — por {{ question.user.name }}</span>
+          {% if question.category %}
+            <span> [{{ question.category.name }}]</span>
+          {% endif %}
+          <span> — por {{ question.user.name if question.user else 'Anónimo' }}</span>
+          <p>{{ question.cuerpo }}</p>
         </li>
       {% endfor %}
     </ul>

@@ -1,7 +1,8 @@
 from myapp.extensions import db
 
-class IAType(db.Model): 
-    __tablename__= "ia_types"
+
+class IAType(db.Model):
+    __tablename__ = "ia_types"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False, unique=True)
@@ -11,6 +12,4 @@ class IAType(db.Model):
         return f"<IAType {self.name}>"
 
     def to_dist(self):
-        return {"id": self.id, 
-                "name":self.name,
-                "is_active":self.is_active}
+        return {"id": self.id, "name": self.name, "is_active": self.is_active}

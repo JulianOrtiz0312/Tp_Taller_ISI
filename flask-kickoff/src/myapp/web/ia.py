@@ -1,6 +1,11 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
-from myapp.services.ia_service import IAServiceError,UnauthorizedIAError,create_ia_type,list_ia_types
+from myapp.services.ia_service import (
+    IAServiceError,
+    UnauthorizedIAError,
+    create_ia_type,
+    list_ia_types,
+)
 
 ia_bp = Blueprint("ia", __name__, url_prefix="/ia")
 

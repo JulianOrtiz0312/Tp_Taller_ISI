@@ -1,5 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, session, request, url_for
 
+from myapp.extensions import db
+from myapp.models import User
 from myapp.services.user_service import UserServiceError, list_users, register_user
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
@@ -20,7 +22,7 @@ def register():
         try:
             register_user(name=name, email=email, password=password)
             flash("Usuario registrado correctamente.")
-            return redirect(url_for("users.index"))
+            return redirect(url_for("users.login"))
         except UserServiceError as exc:
             return (
                 render_template(

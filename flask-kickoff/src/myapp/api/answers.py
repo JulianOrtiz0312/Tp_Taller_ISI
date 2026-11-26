@@ -2,9 +2,15 @@ from flask import Blueprint, jsonify, request, session
 
 from myapp.services.answer_service import (
     AnswerError,
+    ErrorAnswerAccept,
+    ErrorQuestion
     ErrorAutor,
-    ErrorQuestion,
-    create_answer,
+    ErrorBody,
+    ErrorIDAnswer,
+    ErrorModify,
+    modify_answer,
+    create_answer
+
 )
 
 api_answers_bp = Blueprint("api_answers", __name__, url_prefix="/api")
@@ -38,3 +44,29 @@ def post_answer(question_id: int):
         return jsonify({"error": str(exc)}), 400
 
     return jsonify(answer.to_dict()), 201
+
+@api_answers_bp.route("/<int:answer_id>", methods=["PUT", "PATCH"])
+def update(answer_id: int):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Debes iniciar sesión para editar una respuesta."}), 401
+
+    data = request.get_json(silent=True) or {}
+    new_cuerpo = data.get("cuerpo")
+
+    try:
+        answer = modify_answer(
+            answer_id=answer_id,
+            new_cuerpo=new_cuerpo,
+            user_id=user_id,
+        )
+    except ErrorIDAnswer as exc:
+        return jsonify({"error": str(exc)}), 404
+    except (ErrorAutor, ErrorAnswerAccept) as exc:
+        return jsonify({"error": str(exc)}), 403
+    except ErrorBody as exc:
+        return jsonify({"error": str(exc)}), 400
+    except (ErrorModify, AnswerError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify(answer.to_dict()), 200

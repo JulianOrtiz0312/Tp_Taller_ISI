@@ -19,7 +19,7 @@ def manage():
     user = _get_current_web_user()
     if user is None:
         flash("Debes iniciar sesión para gestionar categorías.")
-        return redirect(url_for("users.index"))
+        return redirect(url_for("users.login"))
 
     categories = (
         db.session.execute(db.select(Category).order_by(Category.name)).scalars().all()
@@ -36,7 +36,7 @@ def delete_category_web(category_id: int):
     user = _get_current_web_user()
     if user is None:
         flash("Debes iniciar sesión para eliminar categorías.")
-        return redirect(url_for("users.index"))
+        return redirect(url_for("users.login"))
 
     if user.role != UserRole.ADMIN:
         flash("Solo un administrador puede eliminar categorías.")

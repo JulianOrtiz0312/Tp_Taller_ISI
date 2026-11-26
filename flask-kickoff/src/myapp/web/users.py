@@ -1,5 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
+from myapp.extensions import db
+from myapp.models import User
 from myapp.services.user_service import UserServiceError, list_users, register_user
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")

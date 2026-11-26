@@ -22,7 +22,7 @@ def register():
         try:
             register_user(name=name, email=email, password=password)
             flash("Usuario registrado correctamente.")
-            return redirect(url_for("users.index"))
+            return redirect(url_for("users.login"))
         except UserServiceError as exc:
             return (
                 render_template(
@@ -56,6 +56,6 @@ def login():
 
         session["user_id"] = user.id
         flash("Sesión iniciada correctamente.")
-        return redirect(url_for("users.index"))
+        return redirect(url_for("questions.index"))
 
     return render_template("users/login.html")

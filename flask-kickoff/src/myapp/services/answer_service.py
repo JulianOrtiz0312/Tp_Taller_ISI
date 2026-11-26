@@ -65,6 +65,7 @@ def create_answer(cuerpo: str, id_autor: int, id_question: int) -> Answer:
     db.session.refresh(answer)
     return answer
 
+
 def set_answer_acceptance(
     id_answer: int, id_user: int, *, accepted:bool
 ) -> Answer:
@@ -92,9 +93,69 @@ def set_answer_acceptance(
     db.session.refresh(answer)
     return answer
 
+class ErrorModify(AnswerError):
+    pass
+
+class ErrorIDAnswer(AnswerError) :
+    pass
+
+class ErrorAnswerAccept(AnswerError):
+    pass
+
+def modify_answer(
+    answer_id:int, 
+    new_cuerpo: str,
+    user_id: int
+    ) -> Answer:
+
+    if not isinstance(new_cuerpo, str):
+        raise ErrorBody("El cuerpo nuevo debe ser un texto")
+
+    if not isinstance(answer_id, int):
+        raise ErrorIDAnswer("debe ser un numero el id")
+
+    if not isinstance(user_id, int):
+        raise ErrorAutor("El ID del usuario debe ser un número")
+
+    cuerpo = new_cuerpo.strip()
+
+    if not cuerpo:
+        raise ErrorBody("No se permiten respuestas vacias")
+
+    user = db.session.get(User, user_id)
+
+    if user is None:
+        raise ErrorAutor("Se debe de registrar para modificar una respuesta")
+
+    answer = db.session.get(Answer, answer_id)
+
+    if answer is None: 
+        raise ErrorIDAnswer("No existe la respuesta que quieres modificar")
+
+    if answer.accept is True:
+        raise ErrorAnswerAccept("No se puede modificar una respuesta aceptada")
+
+    if answer.autor.id != user_id and user.role != "admin" :
+        raise ErrorAutor("No tienes permiso de modificar la respuesta")
+
+    answer.cuerpo = cuerpo
+
+    try:
+        db.session.commit()
+    except IntegrityError as exc:
+        db.session.rollback()
+        raise ErrorModify("Hubo un error en la modificacion")
+
+
+    db.session.refresh(answer)
+    return answer
+
+
 def toggle_answer_acceptance(id_answer: int, id_user: int) -> Answer:
     answer = db.session.get(Answer, id_answer)
     if answer is None:
         raise ErrorAnswerNotFound("La respuesta no existe")
     return set_answer_acceptance(id_answer, id_user, accepted=not answer.accept)
+
+
 

@@ -8,6 +8,12 @@ from myapp.services.answer_service import (
     create_answer,
     set_answer_acceptance,
     toggle_answer_acceptance,
+    ErrorAnswerAccept,
+    ErrorBody,
+    ErrorIDAnswer,
+    ErrorModify,
+    modify_answer,
+
 )
 
 api_answers_bp = Blueprint("api_answers", __name__, url_prefix="/api")
@@ -42,6 +48,7 @@ def post_answer(question_id: int):
 
     return jsonify(answer.to_dict()), 201
 
+
 @api_answers_bp.patch("/answers/<int:id_answer>/accept")
 def accept_answer(id_answer: int):
     user_id = session.get("user_id")
@@ -69,3 +76,30 @@ def accept_answer(id_answer: int):
     if hasattr(data.get("fecha"), "isoformat"):
         data["fecha"] = data["fecha"].isoformat()
     return jsonify(data), 200
+
+@api_answers_bp.route("/<int:answer_id>", methods=["PUT", "PATCH"])
+def update(answer_id: int):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"error": "Debes iniciar sesión para editar una respuesta."}), 401
+
+    data = request.get_json(silent=True) or {}
+    new_cuerpo = data.get("cuerpo")
+
+    try:
+        answer = modify_answer(
+            answer_id=answer_id,
+            new_cuerpo=new_cuerpo,
+            user_id=user_id,
+        )
+    except ErrorIDAnswer as exc:
+        return jsonify({"error": str(exc)}), 404
+    except (ErrorAutor, ErrorAnswerAccept) as exc:
+        return jsonify({"error": str(exc)}), 403
+    except ErrorBody as exc:
+        return jsonify({"error": str(exc)}), 400
+    except (ErrorModify, AnswerError) as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify(answer.to_dict()), 200
+

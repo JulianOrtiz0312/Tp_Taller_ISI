@@ -21,6 +21,9 @@ class ErrorAutor(AnswerError):
 class ErrorQuestion(AnswerError):
     pass
 
+class ErrorAnswerNotFound(AnswerError):
+    pass
+
 
 def create_answer(cuerpo: str, id_autor: int, id_question: int) -> Answer:
 
@@ -62,6 +65,33 @@ def create_answer(cuerpo: str, id_autor: int, id_question: int) -> Answer:
     db.session.refresh(answer)
     return answer
 
+
+def set_answer_acceptance(
+    id_answer: int, id_user: int, *, accepted:bool
+) -> Answer:
+    answer = db.session.get(Answer, id_answer)
+    if answer is None:
+        raise ErrorAnswerNotFound("La respuesta no existe")
+
+    question = answer.question or db.session.get(Question, answer.id_Question)
+    if question is None:
+        raise ErrorQuestion("La pregunta asociada no existe")
+
+    if question.user_id is None or question.user_id != id_user:
+        raise ErrorAutor(
+            "Solo el autor de la pregunta puede aceptar o revertir respuestas"
+        )
+
+    answer.accept = bool(accepted)
+
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        raise AnswerError("Error al actualizar el estado de la respuesta")
+
+    db.session.refresh(answer)
+    return answer
 
 class ErrorModify(AnswerError):
     pass
@@ -115,5 +145,16 @@ def modify_answer(answer_id: int, new_cuerpo: str, user_id: int) -> Answer:
         db.session.rollback()
         raise ErrorModify("Hubo un error en la modificacion")
 
+
     db.session.refresh(answer)
     return answer
+
+
+def toggle_answer_acceptance(id_answer: int, id_user: int) -> Answer:
+    answer = db.session.get(Answer, id_answer)
+    if answer is None:
+        raise ErrorAnswerNotFound("La respuesta no existe")
+    return set_answer_acceptance(id_answer, id_user, accepted=not answer.accept)
+
+
+

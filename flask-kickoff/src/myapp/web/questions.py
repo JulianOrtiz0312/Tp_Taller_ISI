@@ -9,8 +9,6 @@ from myapp.services.question_service import (
     ErrorDelete,
     ErrorPermiso,
     ErrorUser,
-    QuestionServiceError,
-    delete_question
     )
 
 questions_bp = Blueprint("questions", __name__, url_prefix="/questions")

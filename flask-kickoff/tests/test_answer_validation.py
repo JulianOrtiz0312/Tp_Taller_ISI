@@ -11,7 +11,8 @@ def _login_as(client, user_id: int) -> None:
 
 
 def _create_user(name: str) -> User:
-    user = User(username=name, email=f"{name}@test.com", password="secret")
+    user = User(name=name, email=f"{name}@test.com")
+    user.set_password("secret")
     db.session.add(user)
     db.session.flush()
     return user

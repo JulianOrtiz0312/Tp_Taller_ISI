@@ -2,18 +2,17 @@ from flask import Blueprint, jsonify, request, session
 
 from myapp.services.answer_service import (
     AnswerError,
+    ErrorAnswerAccept,
     ErrorAnswerNotFound,
     ErrorAutor,
-    ErrorQuestion,
-    create_answer,
-    set_answer_acceptance,
-    toggle_answer_acceptance,
-    ErrorAnswerAccept,
     ErrorBody,
     ErrorIDAnswer,
     ErrorModify,
+    ErrorQuestion,
+    create_answer,
     modify_answer,
-
+    set_answer_acceptance,
+    toggle_answer_acceptance,
 )
 
 api_answers_bp = Blueprint("api_answers", __name__, url_prefix="/api")

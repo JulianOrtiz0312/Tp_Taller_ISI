@@ -142,7 +142,7 @@ def modify_answer(
 
     try:
         db.session.commit()
-    except IntegrityError as exc:
+    except IntegrityError:
         db.session.rollback()
         raise ErrorModify("Hubo un error en la modificacion")
 

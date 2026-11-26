@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import Blueprint, flash, redirect, render_template, session, request, url_for
 
 from myapp.extensions import db
 from myapp.models import User
@@ -36,26 +36,12 @@ def register():
 
     return render_template("users/register.html")
 
-
-@users_bp.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
-
-        user = db.session.scalar(db.select(User).where(User.email == email))
-        if user is None or not user.check_password(password):
-            return (
-                render_template(
-                    "users/login.html",
-                    error="Correo o contraseña incorrectos.",
-                    email=email,
-                ),
-                401,
-            )
-
-        session["user_id"] = user.id
-        flash("Sesión iniciada correctamente.")
-        return redirect(url_for("questions.index"))
-
-    return render_template("users/login.html")
+@users_bp.post("/logout")
+def logout():
+    if "user_id" not in session:
+        flash("no hay sesion activa")
+        return redirect(url_for("users.index"))
+    
+    session.clear()
+    flash("sesion cerrada correctamente")
+    return redirect(url_for("users.index"))

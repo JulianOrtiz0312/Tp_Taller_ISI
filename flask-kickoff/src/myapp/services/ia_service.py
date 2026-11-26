@@ -21,6 +21,14 @@ class InvalidIANameError(IAServiceError):
     pass
 
 
+class IATypeNotFoundError(IAServiceError):
+    pass
+
+
+class InactiveIAError(IAServiceError):
+    pass
+
+
 def create_ia_type(
     name: str,
     user_id: int | None,
@@ -42,7 +50,12 @@ def create_ia_type(
     if existe is not None:
         raise DuplicateIAError("la ia ya esta estaba guardada")
 
-    ia = IAType(name=name_clean, is_active=True)
+    has_selected = (
+        db.session.scalar(db.select(IAType).where(IAType.is_selected.is_(True)))
+        is not None
+    )
+
+    ia = IAType(name=name_clean, is_active=True, is_selected=not has_selected)
     db.session.add(ia)
 
     try:
@@ -60,3 +73,42 @@ def list_ia_types(only_active: bool = False) -> list[IAType]:
     if only_active:
         consulta = consulta.where(IAType.is_active.is_(True))
     return list(db.session.scalars(consulta).all())
+
+
+def switch_ia_type(ia_id: int, user_id: int| None)-> IAType:
+    if user_id is None:
+        raise UnauthorizedIAError("el id no debe ser vacio")
+
+    user = db.session.get(User,user_id)
+    if user is None or user.role != UserRole.ADMIN:
+        raise UnauthorizedIAError("usuario no encontrado o rol euqivocado")
+
+    target_ia = db.session.get(IAType, ia_id)
+    if target_ia is None:
+        raise IATypeNotFoundError("la ia no existe")
+
+    if not target_ia.is_active:
+        raise InactiveIAError("esa ia no esta habilitada")
+
+
+    if target_ia.is_selected:
+        return target_ia
+
+    current_selected = db.session.scalar(db.select(IAType).where(IAType.is_selected.is_(True)))
+    if current_selected is not None:
+        current_selected.is_selected = False
+
+    target_ia.is_selected = True
+    db.session.commit()
+    db.session.refresh(target_ia)
+    return target_ia
+
+
+def get_selected_ia_type() -> IAType | None:
+    return db.session.scalar(
+        db.select(IAType).where(
+            IAType.is_selected.is_(True),
+            IAType.is_active.is_(True),
+        )
+    )
+    

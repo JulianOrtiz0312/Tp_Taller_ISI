@@ -18,6 +18,7 @@
           <button type="submit">Log Out</button>
         </form>
       {% else %}
+        | <a href="{{ url_for('users.login') }}">Iniciar sesión</a>
         | <a href="{{ url_for('users.register') }}">Registrarse</a>
       {% endif %}
     </nav>

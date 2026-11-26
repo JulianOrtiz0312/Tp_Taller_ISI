@@ -1,26 +1,28 @@
 from sqlalchemy.exc import IntegrityError
+
 from myapp.extensions import db
 from myapp.models.answer import Answer
 from myapp.models.question import Question
 from myapp.models.user import User
 
+
 class AnswerError(ValueError):
     pass
+
 
 class ErrorBody(AnswerError):
     pass
 
+
 class ErrorAutor(AnswerError):
     pass
+
 
 class ErrorQuestion(AnswerError):
     pass
 
-def create_answer(
-        cuerpo:str,
-        id_autor: int,
-        id_question: int
-    ) -> Answer:
+
+def create_answer(cuerpo: str, id_autor: int, id_question: int) -> Answer:
 
     if not isinstance(cuerpo, str):
         raise ErrorBody("El cuerpo debe ser un texto")
@@ -37,30 +39,25 @@ def create_answer(
 
     question = db.session.get(Question, id_question)
 
-    if question is None: 
+    if question is None:
         raise ErrorQuestion("Debe seleccionar que pregunta responder")
 
     sqlAnswer = db.select(Answer).where(
-            Answer.id_Autor == id_autor,
-            Answer.id_Question == id_question
-        )
+        Answer.id_Autor == id_autor, Answer.id_Question == id_question
+    )
 
     if db.session.execute(sqlAnswer).scalar_one_or_none() is not None:
         raise AnswerError("Ya respondiste a esta pregunta")
 
-    answer = Answer(
-            cuerpo = cuerpo_clean,
-            id_Autor = id_autor,
-            id_Question = id_question
-    )
+    answer = Answer(cuerpo=cuerpo_clean, id_Autor=id_autor, id_Question=id_question)
 
     db.session.add(answer)
 
     try:
         db.session.commit()
-    except IntegrityError as exc:
+    except IntegrityError:
         db.session.rollback()
-        raise AnswerError ("Error en la creacion de respuesta")
+        raise AnswerError("Error en la creacion de respuesta")
 
     db.session.refresh(answer)
     return answer

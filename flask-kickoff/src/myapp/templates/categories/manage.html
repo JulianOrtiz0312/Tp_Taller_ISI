@@ -5,8 +5,10 @@
 {% block content %}
   <h1>Categorías</h1>
 
-  {% if not is_admin %}
-    <p>Solo los administradores pueden eliminar categorías.</p>
+  {% if is_admin %}
+    <p><a href="{{ url_for('web_categories.create_category_web') }}">Nueva Categoría</a></p>
+  {% else %}
+    <p>Solo los administradores pueden crear o eliminar categorías.</p>
   {% endif %}
 
   {% if categories %}

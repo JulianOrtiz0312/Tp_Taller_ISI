@@ -1,8 +1,18 @@
-from flask import Blueprint, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from sqlalchemy.exc import IntegrityError
 
 from myapp.extensions import db
 from myapp.models import Category, Question, User, UserRole
+from myapp.services.category_service import CategoryServiceError, create_category
 
 web_categories_bp = Blueprint("web_categories", __name__, url_prefix="/categories")
 
@@ -72,3 +82,33 @@ def delete_category_web(category_id: int):
 
     flash(f"Categoría eliminada (motivo: {reason}).")
     return redirect(url_for("web_categories.manage"))
+
+
+@web_categories_bp.route("/create", methods=["GET", "POST"])
+def create_category_web():
+    user = _get_current_web_user()
+    if user is None:
+        flash("Debes iniciar sesión para crear categorías.")
+        login_endpoint = (
+            "users.login"
+            if "users.login" in current_app.view_functions
+            else "users.index"
+        )
+        return redirect(url_for(login_endpoint))
+
+    if user.role != UserRole.ADMIN:
+        flash("Solo un administrador puede crear categorías.")
+        return redirect(url_for("web_categories.manage")), 403
+
+    if request.method == "POST":
+        raw_name = request.form.get("name", "")
+        try:
+            create_category(raw_name)
+        except CategoryServiceError as exc:
+            flash(str(exc))
+            return render_template("categories/create.html"), 400
+
+        flash("Categoría creada correctamente.")
+        return redirect(url_for("web_categories.manage"))
+
+    return render_template("categories/create.html")

@@ -1,5 +1,12 @@
+import pytest
+
 from myapp.extensions import db
 from myapp.models import Category, Question, User, UserRole
+from myapp.services.category_service import (
+    CategoryConflictError,
+    CategoryValidationError,
+    create_category,
+)
 
 
 def _create_user(name: str, email: str, role: UserRole) -> User:
@@ -115,3 +122,73 @@ def test_cannot_modify_category_id(app, client):
         json={"id": 999, "name": "Redes de Datos"},
     )
     assert response.status_code == 400
+
+
+def test_create_category_service_success(app):
+    with app.app_context():
+        category = create_category("  Bases de Datos  ")
+        assert category.id is not None
+        assert category.name == "Bases de Datos"
+
+
+def test_create_category_service_rejects_empty_and_duplicate(app):
+    with app.app_context():
+        with pytest.raises(CategoryValidationError):
+            create_category("   ")
+
+        create_category("Algoritmos")
+        with pytest.raises(CategoryConflictError):
+            create_category("algoritmos")
+
+
+def test_web_create_category_requires_login(client):
+    response = client.get("/categories/create")
+    assert response.status_code == 302
+    assert "/users" in response.headers["Location"]
+
+
+def test_web_create_category_forbidden_for_non_admin(app, client):
+    non_admin_role = next(role for role in UserRole if role != UserRole.ADMIN)
+    with app.app_context():
+        user = _create_user("Alumno", "alumno_web@unrc.edu.ar", non_admin_role)
+        user_id = user.id
+
+    _login_session(client, user_id)
+    response = client.post("/categories/create", data={"name": "Redes"})
+    assert response.status_code == 403
+
+
+def test_web_create_category_admin_success(app, client):
+    with app.app_context():
+        admin = _create_user("Admin Web", "admin_web@unrc.edu.ar", UserRole.ADMIN)
+        admin_id = admin.id
+
+    _login_session(client, admin_id)
+    response = client.post(
+        "/categories/create",
+        data={"name": "Ingenieria de Software"},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert "Categoría creada correctamente" in response.get_data(as_text=True)
+
+    with app.app_context():
+        created = db.session.scalar(
+            db.select(Category).where(Category.name == "Ingenieria de Software")
+        )
+        assert created is not None
+
+
+def test_web_create_category_duplicate_shows_error(app, client):
+    with app.app_context():
+        admin = _create_user("Admin Web 2", "admin_web2@unrc.edu.ar", UserRole.ADMIN)
+        admin_id = admin.id
+        create_category("Sistemas Operativos")
+
+    _login_session(client, admin_id)
+    response = client.post(
+        "/categories/create",
+        data={"name": "sistemas operativos"},
+    )
+    assert response.status_code == 400
+    assert "Ya existe una categoria con ese nombre" in response.get_data(as_text=True)

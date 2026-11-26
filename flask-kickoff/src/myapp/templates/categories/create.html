@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva Categoría{% endblock %}
+
+{% block content %}
+  <h1>Crear Categoría</h1>
+
+  <form method="post" action="{{ url_for('web_categories.create_category_web') }}">
+    <div>
+      <label for="name">Nombre de la categoría:</label>
+      <input id="name" name="name" type="text" maxlength="120" required>
+    </div>
+    <button type="submit">Crear</button>
+    <a href="{{ url_for('web_categories.manage') }}">Cancelar</a>
+  </form>
+{% endblock %}

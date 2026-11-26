@@ -58,3 +58,32 @@ def update_category(category_id: int, raw_name: object) -> Category:
 
     logger.info("Categoria id=%s actualizada a '%s'", category.id, category.name)
     return category
+
+
+def create_category(raw_name: object) -> Category:
+    if not isinstance(raw_name, str) or not raw_name.strip():
+        raise CategoryValidationError("El nombre de la categoria no puede estar vacio.")
+
+    clean_name = raw_name.strip()
+    if len(clean_name) > 120:
+        raise CategoryValidationError(
+            "El nombre de la categoria no puede superar los 120 caracteres."
+        )
+
+    existing = db.session.scalar(
+        db.select(Category).where(func.lower(Category.name) == clean_name.lower())
+    )
+    if existing is not None:
+        raise CategoryConflictError("Ya existe una categoria con ese nombre.")
+
+    category = Category(name=clean_name)
+    db.session.add(category)
+
+    try:
+        db.session.commit()
+    except IntegrityError as exc:
+        db.session.rollback()
+        raise CategoryConflictError("Ya existe una categoria con ese nombre.") from exc
+
+    logger.info("Categoria id=%s creada: '%s'", category.id, category.name)
+    return category

@@ -19,7 +19,8 @@ class Answer(db.Model):
     )
 
     autor = db.relationship("User", backref=db.backref("answers", lazy=True))
-    question = db.relationship("Question", backref=db.backref("answers", lazy=True))
+    question = question = db.relationship("Question", backref=db.backref("answers", cascade="all, delete-orphan", lazy=True),
+)
 
     def __repr__(self):
         return f"<Answer {self.cuerpo}"

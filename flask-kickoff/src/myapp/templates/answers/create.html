@@ -3,40 +3,48 @@
 {% block title %}Responder Pregunta{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Responder pregunta</h1>
-
-    <div class="question-summary">
-        <h2>{{ question.titulo }}</h2>
-        <p>{{ question.cuerpo }}</p>
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body bg-white">
+        <span class="badge bg-secondary mb-2">Pregunta</span>
+        <h2 class="h5 mb-2">{{ question.titulo }}</h2>
+        <p class="text-muted mb-0" style="white-space: pre-line;">{{ question.cuerpo }}</p>
+      </div>
     </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul class="flashes">
-                {% for category, message in messages %}
-                    <li class="{{ category }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Responder pregunta</h1>
 
-    <form method="POST" action="{{ url_for('answers.create', question_id=question.id) }}">
-        <div>
-            <label for="cuerpo">Tu respuesta:</label><br>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-warning" role="alert">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('answers.create', question_id=question.id) }}">
+          <div class="mb-3">
+            <label for="cuerpo" class="form-label">Tu respuesta:</label>
             <textarea
-                id="cuerpo"
-                name="cuerpo"
-                rows="6"
-                cols="60"
-                required
-                placeholder="Escribí tu respuesta acá..."
+              id="cuerpo"
+              name="cuerpo"
+              class="form-control"
+              rows="6"
+              required
+              placeholder="Escribí tu respuesta acá..."
             >{{ cuerpo }}</textarea>
-        </div>
+          </div>
 
-        <div style="margin-top: 1rem;">
-            <button type="submit">Publicar respuesta</button>
-        </div>
-    </form>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Publicar respuesta</button>
+            <a href="{{ url_for('questions.detail', question_id=question.id) }}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}

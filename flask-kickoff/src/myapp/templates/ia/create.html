@@ -1,46 +1,72 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Añadir Inteligencia Artificial</h1>
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-3">Añadir Inteligencia Artificial</h1>
 
-{% if error %}
-  <p style="color: red;">{{ error }}</p>
-{% endif %}
+        {% if error %}
+          <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endif %}
 
-<form method="post">
-  <div>
-    <label for="name">Nombre de la IA</label>
-    <input
-      type="text"
-      id="name"
-      name="name"
-      maxlength="100"
-      value="{{ name or '' }}"
-      placeholder="Ej: Gemini, ChatGPT, Claude"
-      required
-    >
+        <form method="post">
+          <div class="mb-3">
+            <label for="name" class="form-label">Nombre de la IA</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="form-control"
+              maxlength="100"
+              value="{{ name or '' }}"
+              placeholder="Ej: Gemini, ChatGPT, Claude"
+              required
+            >
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Añadir IA</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-  <button type="submit">Añadir IA</button>
-</form>
-
-<h2>IAs registradas</h2>
-{% if ia_types %}
-  <ul>
-    {% for ia in ia_types %}
-      <li>
-        {{ ia.name }} - {% if ia.is_active %}Activa{% else %}Inactiva{% endif %}
-        {% if ia.is_selected %}
-          <strong>(Seleccionada para respuestas automáticas)</strong>
-        {% elif ia.is_active %}
-          <form method="post" action="{{ url_for('ia.switch', ia_id=ia.id) }}" style="display:inline;">
-            <button type="submit">Seleccionar</button>
-          </form>
+  <div class="col-md-7">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white py-3">
+        <h2 class="h5 mb-0">IAs registradas</h2>
+      </div>
+      <div class="card-body p-0">
+        {% if ia_types %}
+          <ul class="list-group list-group-flush">
+            {% for ia in ia_types %}
+              <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                  <span class="fw-semibold">{{ ia.name }}</span>
+                  <span class="badge {{ 'bg-success' if ia.is_active else 'bg-secondary' }} ms-2">
+                    {% if ia.is_active %}Activa{% else %}Inactiva{% endif %}
+                  </span>
+                </div>
+                <div>
+                  {% if ia.is_selected %}
+                    <span class="badge bg-primary">Seleccionada para respuestas automáticas</span>
+                  {% elif ia.is_active %}
+                    <form method="post" action="{{ url_for('ia.switch', ia_id=ia.id) }}" class="d-inline">
+                      <button type="submit" class="btn btn-outline-primary btn-sm">Seleccionar</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="text-muted p-3 mb-0">No hay inteligencias artificiales registradas todavía.</p>
         {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>No hay inteligencias artificiales registradas todavía.</p>
-{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

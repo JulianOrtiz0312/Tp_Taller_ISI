@@ -82,7 +82,7 @@ def edit(answer_id: int):
 
     if answer.accept:
         flash("No se puede modificar una respuesta aceptada.", "error")
-        return redirect(url_for("questions.detail", question_id=answer.question_id))
+        return redirect(url_for("questions.detail", question_id=answer.id_Question))
 
     if request.method == "POST":
         new_cuerpo = request.form.get("cuerpo", "")
@@ -95,7 +95,7 @@ def edit(answer_id: int):
             )
             flash("Respuesta actualizada correctamente.", "success")
             return redirect(
-                url_for("questions.detail", question_id=updated_answer.question_id)
+                url_for("questions.detail", question_id=updated_answer.id_Question)
             )
         except (
             ErrorBody,
